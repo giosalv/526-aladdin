@@ -29,25 +29,59 @@ void ScratchpadDatapath::globalOptimizationPass() {
   std::cout << "=============================================" << std::endl;
   std::cout << "      Optimizing...            " << benchName << std::endl;
   std::cout << "=============================================" << std::endl;
+
+  dumpGraph(benchName + "-0~unopt");
+
   // Node removals must come first.
-  removePhiNodes();
+  //removePhiNodes();
+  //dumpGraph(benchName + "-1~nophi");
+
   /* memoryAmbiguation() should execute after removeInductionDependence()
    * because it needs induction_nodes. */
   removeInductionDependence();
+  dumpGraph(benchName + "-2~noind");
+
+  //std::cout << "-- Printing inductive phis --" << std::endl;
+  //const std::vector<Vertex> inductive_phis = findInductivePhis();
+  //for (auto it = inductive_phis.begin(), it_end = inductive_phis.end();
+  //     it != it_end;
+  //     ++it)
+  //  std::cout << "-- " << vertex_to_string(*it) << std::endl;
+
   memoryAmbiguation();
+  dumpGraph(benchName + "-3~memamb");
+
   // Base address must be initialized next.
   initBaseAddress();
+
   completePartition();
   scratchpadPartition();
+  dumpGraph(benchName + "-4~part");
+
   loopFlatten();
+  dumpGraph(benchName + "-5~flat");
+
   loopUnrolling();
+  dumpGraph(benchName + "-6~unroll");
+
   removeSharedLoads();
+  dumpGraph(benchName + "-7~noshld");
+
   storeBuffer();
+  dumpGraph(benchName + "-8~stbuf");
+
   removeRepeatedStores();
+  dumpGraph(benchName + "-9~norepst");
+
   treeHeightReduction();
+  dumpGraph(benchName + "-10~tree");
+
   // Must do loop pipelining last; after all the data/control dependences are
   // fixed
   loopPipelining();
+  dumpGraph(benchName + "-11~pipe");
+
+  dumpGraph(benchName + "-11~opt");
 }
 
 /* First, compute all base addresses, then check each node to make sure that

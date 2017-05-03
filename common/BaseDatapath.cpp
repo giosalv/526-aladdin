@@ -1,5 +1,6 @@
 #include <sstream>
 #include <utility>
+#include <deque>
 
 #include "opcode_func.h"
 #include "BaseDatapath.h"
@@ -347,10 +348,17 @@ void BaseDatapath::removeInductionDependence() {
                in_edges(node->get_vertex(), graph_);
            in_edge_it != in_edge_end;
            ++in_edge_it) {
-        if (edge_to_parid[*in_edge_it] == CONTROL_EDGE)
-          continue;
         Vertex parent_vertex = source(*in_edge_it, graph_);
         ExecNode* parent_node = getNodeFromVertex(parent_vertex);
+        if (edge_to_parid[*in_edge_it] == CONTROL_EDGE) {
+          Vertex vertex = node->get_vertex();
+          std::cout << "CONTROL_EDGE: "
+                    << vertex_to_string(parent_vertex) << " -> "
+                    << vertex_to_string(vertex)
+                    << std::endl;
+          continue;
+        }
+        // TODO move inits back here
         if (!parent_node->is_inductive()) {
           all_inductive = false;
         } else {
@@ -1089,6 +1097,127 @@ void BaseDatapath::treeHeightReduction() {
   cleanLeafNodes();
 }
 
+bool BaseDatapath::hasInductiveParent(ExecNode * const node) {
+  in_edge_iter in_edge_it, in_edge_end;
+
+  for (boost::tie(in_edge_it, in_edge_end) =
+           in_edges(node->get_vertex(), graph_);
+       in_edge_it != in_edge_end;
+       ++in_edge_it) {
+    Vertex parent_vertex = source(*in_edge_it, graph_);
+    ExecNode* parent_node = getNodeFromVertex(parent_vertex);
+
+    if (parent_node->is_inductive())
+      return true;
+  }
+
+  return false;
+}
+
+BaseDatapath::LoopConditionalDependenceChain BaseDatapath::findParentLoopConditionalBranch(Vertex src) {
+  in_edge_iter in_edge_it, in_edge_end;
+
+  // To keep track of the chain of dependencies
+  std::map<Vertex, Vertex> parents;
+  std::set<Vertex> visited_nodes;
+  std::deque<Vertex> parent_node_worklists;
+  parent_node_worklists.push_back(src);
+
+  // Do BFS to find earlist CD parent branch which has an inductive parent
+  while (!parent_node_worklists.empty()) {
+    Vertex vertex = parent_node_worklists.front();
+    parent_node_worklists.pop_front();
+
+    // Ignore vertices we have seen already
+    if (visited_nodes.find(vertex) != visited_nodes.end())
+      continue;
+
+    ExecNode * const node = getNodeFromVertex(vertex);
+
+    for (boost::tie(in_edge_it, in_edge_end) =
+             in_edges(node->get_vertex(), graph_);
+         in_edge_it != in_edge_end;
+         ++in_edge_it) {
+      Vertex parent_vertex = source(*in_edge_it, graph_);
+      ExecNode* parent_node = getNodeFromVertex(parent_vertex);
+
+      // TODO: Unsure about indirect branches
+      if (parent_node->get_microop() != LLVM_IR_Br ||
+          parent_node->get_microop() != LLVM_IR_IndirectBr)
+        continue;
+
+      if (hasInductiveParent(parent_node)) {
+        // Done search. Return the earlist CD branch with an inductive parent
+        //return parent_vertex;
+        return LoopConditionalDependenceChain(src, parent_vertex, parents);
+      } else {
+        // Add the parent vertex to the worklist
+        parent_node_worklists.push_back(parent_vertex);
+        parents[parent_vertex] = vertex;
+      }
+    }
+
+    visited_nodes.insert(vertex);
+  }
+
+  assert(false && "findParentLoopConditionalBranch: Expected node to be CD on "
+                  "inductive branch");
+}
+
+void BaseDatapath::stallControlDependentStores() {
+  std::vector<newEdge> to_add_edges;
+  std::vector<newEdge> to_remove_edges;
+
+  // Store the loop conditional branch on which each loop store is
+  // control dependent
+  std::unordered_map<DynamicInstruction, ExecNode*> cd_loop_cond;
+
+  for (auto node_it = exec_nodes.begin(); node_it != exec_nodes.end();
+       ++node_it) {
+    ExecNode* node = node_it->second;
+    Vertex vertex = node->get_vertex();
+
+    // We only care about stores that are non-inductive ??
+    if (!node->is_memory_op() || !node->has_vertex() ||
+        !node->is_dynamic_mem_op())
+      continue;
+
+    LCDChain parent_vertex_branch = findParentLoopConditionalBranch(vertex);
+  }
+}
+
+std::string BaseDatapath::vertex_to_string(const Vertex &vertex) const {
+  return node_to_string(exec_nodes.at(get(boost::vertex_node_id, graph_, vertex)));
+}
+
+std::string BaseDatapath::node_to_string(ExecNode * const node) const {
+  const int node_id = node->get_node_id();
+  const int microop = node->get_microop();
+  std::string microop_str = string_of_op(microop);
+  return std::to_string(node_id) + "~" + microop_str;
+}
+
+std::vector<Vertex> BaseDatapath::findInductivePhis() {
+  std::vector<Vertex> inductive_phis;
+
+  for (auto node_it = exec_nodes.rbegin(); node_it != exec_nodes.rend();
+       node_it++) {
+    ExecNode* node = node_it->second;
+
+    if (!node->has_vertex() ||
+        (node->get_microop() != LLVM_IR_PHI && !node->is_convert_op()))
+      continue;
+
+    Vertex node_vertex = node->get_vertex();
+    if (node->is_inductive())
+      inductive_phis.push_back(node_vertex);
+    else if (hasInductiveParent(node))
+      inductive_phis.push_back(node_vertex);
+  }
+
+  return inductive_phis;
+}
+
 void BaseDatapath::findMinRankNodes(ExecNode** node1,
                                     ExecNode** node2,
                                     std::map<ExecNode*, unsigned>& rank_map) {
@@ -1770,13 +1899,22 @@ void BaseDatapath::prepareForScheduling() {
 
 void BaseDatapath::dumpGraph(std::string graph_name) {
   std::unordered_map<Vertex, unsigned> vertexToMicroop;
+  std::unordered_map<Vertex, unsigned> vertexToID;
+  std::unordered_map<Vertex, unsigned> vertexIsInductive;
   BGL_FORALL_VERTICES(v, graph_, Graph) {
     vertexToMicroop[v] =
         exec_nodes.at(get(boost::vertex_node_id, graph_, v))->get_microop();
+    vertexToID[v] =
+        exec_nodes.at(get(boost::vertex_node_id, graph_, v))->get_node_id();
+    vertexIsInductive[v] =
+        exec_nodes.at(get(boost::vertex_node_id, graph_, v))->is_inductive();
   }
   std::ofstream out(
-      graph_name + "_graph.dot", std::ofstream::out | std::ofstream::app);
-  write_graphviz(out, graph_, make_microop_label_writer(vertexToMicroop));
+      graph_name + "_graph.dot", std::ofstream::out);
+      //graph_name + "_graph.dot", std::ofstream::out | std::ofstream::app);
+  write_graphviz(out, graph_, make_microop_label_writer(vertexToMicroop,
+                                                        vertexToID,
+                                                        vertexIsInductive));
 }
 
 /*As Late As Possible (ALAP) rescheduling for non-memory, non-control nodes.

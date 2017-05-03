@@ -1,4 +1,5 @@
 #include "power_func.h"
+#include <string>
 
 #ifndef OPCODE_FUNC_H
 #define OPCODE_FUNC_H
@@ -70,5 +71,7 @@
 #define LLVM_IR_Sine 102
 #define LLVM_IR_Cosine 103
 // clang-format on
+
+std::string string_of_op(const int microop);
 
 #endif

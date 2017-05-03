@@ -5,7 +5,7 @@ EXE = aladdin
 MACHINE_MODEL_OBJS = BaseDatapath.o ScratchpadDatapath.o Scratchpad.o \
                      Registers.o Partition.o LogicalArray.o ReadyPartition.o \
                      SourceManager.o
-UTILS_OBJS = file_func.o generic_func.o power_func.o
+UTILS_OBJS = file_func.o generic_func.o power_func.o opcode_func.o
 DDDG_OBJS = DDDG.o
 OBJS += $(MACHINE_MODEL_OBJS) $(UTILS_OBJS) $(DDDG_OBJS)
 OBJ_FILES = $(patsubst %.o,obj/%.o,$(OBJS))
@@ -25,7 +25,8 @@ CACTI_OBJS = Ucache.o bank.o cacti_interface.o decoder.o  parameter.o \
 CACTI_SRCS = $(patsubst %.o,%.cc,$(CACTI_OBJS))
 CACTI_OBJ_FILES = $(patsubst %.o,$(CACTI_OBJ_DIR)/%.o,$(CACTI_OBJS))
 
-DEBUG =
+DEBUG = -DDEBUG
+#DEBUG =
 CFLAGS += $(DEBUG) $(BITWIDTH) -O3 -std=c++0x -I$(BOOST_ROOT) -Icacti-p
 LFLAGS += -lz -L$(BOOST_ROOT)/stage/lib -lboost_graph -lboost_regex -lpthread
 

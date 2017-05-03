@@ -149,19 +149,35 @@ struct summary_data_t {
  */
 template <class Map> class microop_label_writer {
  public:
-  microop_label_writer(Map _vertexToMicroop)
-      : vertexToMicroop(_vertexToMicroop) {}
+  microop_label_writer(Map _vertexToMicroop,
+                       Map _vertexToID,
+                       Map _vertexIsInductive)
+      : vertexToMicroop(_vertexToMicroop),
+        vertexToID(_vertexToID),
+        vertexIsInductive(_vertexIsInductive) { }
   void operator()(std::ostream& out, const Vertex& v) {
-    out << "[label=" << vertexToMicroop[v] << "]";
+    const int node_id = vertexToID[v];
+    const int microop = vertexToMicroop[v];
+    const bool is_inductive = vertexIsInductive[v];
+    const std::string label = string_of_op(microop);
+    const std::string color = (is_inductive) ? "red" : "black";
+    out << "["
+        << "label=\"" << node_id << "~" << label << "\" "
+        << "color=" << color
+        << "]";
   }
 
  private:
   Map vertexToMicroop;
+  Map vertexToID;
+  Map vertexIsInductive;
 };
 
 template <class Map>
-inline microop_label_writer<Map> make_microop_label_writer(Map map) {
-  return microop_label_writer<Map>(map);
+inline microop_label_writer<Map> make_microop_label_writer(Map map1,
+                                                           Map map2,
+                                                           Map map3) {
+  return microop_label_writer<Map>(map1, map2, map3);
 }
 
 class BaseDatapath {
@@ -287,6 +303,28 @@ class BaseDatapath {
   void removeSharedLoads();
   void removeRepeatedStores();
   void treeHeightReduction();
+
+  // GIO
+  typedef struct LoopConditionalDependenceChain {
+    Vertex source_vertex;
+    Vertex branch_vertex;
+    std::map<Vertex, Vertex> parents;
+
+    LoopConditionalDependenceChain(Vertex _source_vertex,
+                                   Vertex _branch_vertex,
+                                   std::map<Vertex, Vertex> _parents) :
+                                   source_vertex(_source_vertex),
+                                   branch_vertex(_branch_vertex),
+                                   parents(_parents) { }
+  } LCDChain;
+
+  bool hasInductiveParent(ExecNode * const node);
+  LoopConditionalDependenceChain findParentLoopConditionalBranch(Vertex src);
+  void stallControlDependentStores();
+
+  std::string vertex_to_string(const Vertex &vertex) const;
+  std::string node_to_string(ExecNode * const node) const;
+  std::vector<Vertex> findInductivePhis();
 
 #ifdef USE_DB
   // Specify the experiment to be associated with this simulation. Calling this

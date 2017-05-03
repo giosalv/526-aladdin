@@ -63,7 +63,8 @@ $(EXEC)-instrumented: full.s
 	$(CXX) -O0 -fno-inline -o $@ $< -lm -lz
 
 %-opt.llvm: %.c labelmap
-	clang -g -O1 -S -fno-slp-vectorize -fno-vectorize -fno-unroll-loops \
+	#clang -g -O1 -S -fno-slp-vectorize -fno-vectorize -fno-unroll-loops
+	clang -g -O0 -S -fno-slp-vectorize -fno-vectorize -fno-unroll-loops \
         -fno-inline -fno-builtin \
 				-emit-llvm \
 				$(CPPFLAGS) \
