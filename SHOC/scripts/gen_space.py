@@ -13,14 +13,14 @@ import matplotlib.pyplot as plt
 import llvm_compile
 
 gen_results = 1
-graph_results = 1
+graph_results = 0
 
 #unroll = [1, 2, 4, 8, 16, 32]#, 64]
-unroll = [1, 4, 16, 64]
-unroll_inner = [1, 4, 16, 64]
+unroll = [1]#, 4, 16, 64]
+unroll_inner = [1]#, 4, 16, 64]
 #part  = [1, 2, 4, 8, 16, 32]#, 64]
-part = [1, 4, 16, 64]
-pipe = [0, 1]
+part = [1]#, 4, 16, 64]
+pipe = [0]#, 1]
 
 #You can parallel this by running multiply jobs together
 #In this case, llvm_coompile.py inside run_aladdin.py only need to run once
@@ -39,7 +39,15 @@ pipe = [0, 1]
 benchmarks = ['lud1','lud2','stencil']
 sizes = ['small','medium','large']
 
+generalized_trace = 1
+benchmarks = ['hello']
+sizes = ['small']
+loop_counts={}
+loop_counts['hello'] = {}
+loop_counts['hello']['5'] = ['6']
+
 ALADDIN_HOME = str(os.getenv('ALADDIN_HOME'))
+GEN_PASS_HOME = str(os.getenv('GEN_PASS_HOME'))
 
 for bench in benchmarks:
   for size in sizes:
@@ -48,7 +56,7 @@ for bench in benchmarks:
     # MH: Compile the benchmark once before the loop, instead of compiling it
     # for every single configuration.
     BENCH_HOME = ALADDIN_HOME + '/SHOC/' + bench
-    llvm_compile.main(BENCH_HOME, bench, size)
+    llvm_compile.main(BENCH_HOME, bench, size, generalized_trace, loop_counts[bench])
     os.chdir(ALADDIN_HOME + '/SHOC/scripts')
 
     if gen_results:
@@ -60,7 +68,7 @@ for bench in benchmarks:
           for f_part in part:
             for f_pipe in pipe:
               # CHANGE CLOCK FREQUENCY HERE. CURRENTLY 2 NS.
-              os.system('python run_aladdin.py %s %s %i %i %i %i 2 False' % (bench, size, f_part, f_unroll, f_unroll_inner, f_pipe))
+              os.system('python run_aladdin.py %s %s %i %i %i %i 2 False %d' % (bench, size, f_part, f_unroll, f_unroll_inner, f_pipe, generalized_trace))
 
     if graph_results:
       MAX_VAL = 0xFFFFFFFF

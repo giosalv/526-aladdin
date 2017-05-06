@@ -6,13 +6,16 @@ import os.path
 import llvm_compile
 import config
 
-def main(kernel, size, part, unroll, unroll_inner, pipe, clock_period, compile_kernel):
+def main(kernel, size, part, unroll, unroll_inner, pipe, clock_period, compile_kernel, generalized_trace=False):
 
   if not 'ALADDIN_HOME' in os.environ:
     raise Exception('Set ALADDIN_HOME directory as an environment variable')
 
   if not 'TRACER_HOME' in os.environ:
     raise Exception('Set TRACER_HOME directory as an environment variable')
+
+  if not 'GEN_PASS_HOME' in os.environ:
+    raise Exception('Set GEN_PASS_HOME directory as an environment variable')
 
 
   ALADDIN_HOME = os.getenv('ALADDIN_HOME')
@@ -31,7 +34,11 @@ def main(kernel, size, part, unroll, unroll_inner, pipe, clock_period, compile_k
   config.main(BENCH_HOME, kernel, size, part, unroll, unroll_inner, pipe, clock_period)
 
   print 'Start Aladdin'
-  trace_file = BENCH_HOME+ '/' + 'dynamic_trace.gz'
+  trace_file = ''
+  if generalized_trace:
+    trace_file = BENCH_HOME+ '/' + 'generalized_trace.gz'
+  else:
+    trace_file = BENCH_HOME+ '/' + 'dynamic_trace.gz'
   config_file = 'config_' + d
 
   newdir = os.path.join(BENCH_HOME, 'sim-%s'%size, d)

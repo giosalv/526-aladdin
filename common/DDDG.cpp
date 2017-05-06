@@ -552,7 +552,7 @@ size_t DDDG::build_initial_dddg(size_t trace_off, size_t trace_size) {
     if (gzgets(trace_file, buffer, sizeof(buffer)) == NULL) {
       continue;
     }
-    current_trace_off = gzoffset(trace_file);
+    current_trace_off = 0;//gzoffset(trace_file);
     if (trace_progress.at_epoch_end()) {
       trace_progress.start_new_epoch();
     }

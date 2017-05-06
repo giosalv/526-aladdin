@@ -15,15 +15,17 @@ kernels = {
 'lud1'     : 'lud1',
 'lud2'     : 'lud2',
 'spmv'    : 'spmv',
+'hello'    : 'hello',
 }
 
-def main (directory, source, size):
+def main (directory, source, size, generalized_trace=0, loop_counts=None):
 
   if not 'TRACER_HOME' in os.environ:
     raise Exception('Set TRACER_HOME directory as an environment variable')
   out_fn = source + '-' + size
   os.chdir(directory)
   obj = out_fn + '.llvm'
+  intermed_obj = out_fn + '-intermed.llvm'
   opt_obj = out_fn + '-opt.llvm'
   executable = out_fn + '-instrumented'
   os.environ['WORKLOAD']=kernels[source]
@@ -39,29 +41,51 @@ def main (directory, source, size):
   source_file = source + '.c'
   print directory
 
-  print 'clang -g -O1 -S -I' + os.environ['ALADDIN_HOME'] + \
+  clang_cmd = 'clang -g -O1 -S -I' + os.environ['ALADDIN_HOME'] + \
         ' -D' + size_define + \
         ' -fno-slp-vectorize -fno-vectorize -fno-unroll-loops ' + \
         ' -fno-inline -fno-builtin -emit-llvm -o ' + obj + ' '  + source_file
-  os.system('clang -g -O1 -S -I' + os.environ['ALADDIN_HOME'] + \
-            ' -D' + size_define + \
-            ' -fno-slp-vectorize -fno-vectorize -fno-unroll-loops ' + \
-            ' -fno-inline -fno-builtin -emit-llvm -o ' + obj + ' ' + source_file)
+  print clang_cmd
+  os.system(clang_cmd)
+  opt_cmd = 'opt -S -simplifycfg -loop-simplify -loop-rotate ' + \
+            ' -o ' + intermed_obj + ' ' + obj
+  print opt_cmd
+  os.system(opt_cmd)
 
-  print 'opt -S -load=' + os.getenv('TRACER_HOME') + '/full-trace/full_trace.so -fulltrace ' + obj + ' -o ' + opt_obj
-  os.system('opt -S -load=' + os.getenv('TRACER_HOME') + '/full-trace/full_trace.so -fulltrace ' + obj + ' -o ' + opt_obj)
+  if generalized_trace:
+    if not loop_counts is None:
+      for loop_line in loop_counts.keys():
+        loop_iter_str = ''
+        for loop_iters in loop_counts[loop_line]:
+          loop_iter_str = loop_iter_str + loop_iters + ","
+    
+        opt_cmd='opt -S -load=' + os.getenv('GEN_PASS_HOME') + '/lib/LLVMProj526.so ' + \
+                ' -proj526 --loop_line=' + str(loop_line) + ' --iteration_counts=' + loop_iter_str + \
+                ' -o ' + intermed_obj + ' ' + intermed_obj
+        print opt_cmd
+        os.system(opt_cmd)
+    opt_cmd = 'opt -load=' + os.getenv('GEN_PASS_HOME') + '/lib/LLVMProj526Func.so ' + \
+              ' -load=' + os.getenv('GEN_PASS_HOME') + '/lib/LLVMProj526.so ' + \
+              '-nameinsts -proj526func -o ' + opt_obj + ' ' + intermed_obj 
+    print opt_cmd
+    os.system(opt_cmd)
+  else:
+    opt_cmd = 'opt -S -load=' + os.getenv('TRACER_HOME') + '/full-trace/full_trace.so -fulltrace ' + intermed_obj + ' -o ' + opt_obj
+    print opt_cmd
+    os.system(opt_cmd)
 
-  print 'llvm-link -o full.llvm ' + opt_obj + ' ' + os.getenv('TRACER_HOME') + '/profile-func/trace_logger.llvm'
-  os.system('llvm-link -o full.llvm ' + opt_obj + ' ' + os.getenv('TRACER_HOME') + '/profile-func/trace_logger.llvm')
+    print 'llvm-link -o full.llvm ' + opt_obj + ' ' + os.getenv('TRACER_HOME') + '/profile-func/trace_logger.llvm'
+    os.system('llvm-link -o full.llvm ' + opt_obj + ' ' + os.getenv('TRACER_HOME') + '/profile-func/trace_logger.llvm')
 
-  print 'llc -O0 -disable-fp-elim -filetype=asm -o full.s full.llvm'
-  os.system('llc -O0 -disable-fp-elim -filetype=asm -o full.s full.llvm')
+    print 'llc -O0 -disable-fp-elim -filetype=asm -o full.s full.llvm'
+    os.system('llc -O0 -disable-fp-elim -filetype=asm -o full.s full.llvm')
 
-  print 'gcc -O0 -fno-inline -o ' + executable + ' full.s -lm -lz'
-  os.system('gcc -O0 -fno-inline -o ' + executable + ' full.s -lm -lz')
+    print 'gcc -O0 -fno-inline -o ' + executable + ' full.s -lm -lz'
+    os.system('gcc -O0 -fno-inline -o ' + executable + ' full.s -lm -lz')
 
-  print './' + executable
-  os.system('./' + executable)
+    print './' + executable
+    os.system('./' + executable)
+    
 
 if __name__ == '__main__':
   directory = sys.argv[1]

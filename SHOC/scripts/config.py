@@ -25,6 +25,7 @@ def main(directory, kernel, input_size, part, unroll, unroll_inner, pipe, cycle_
   'lud1'     : ['diag'],
   'lud2'     : ['diag','peri_row','peri_col'],
   'spmv'    : ['values', 'rows', 'cols', 'vector', 'result'],
+  'hello'     : [],
   }
   array_partition_type = {
   'bb_gemm' : ['cyclic','cyclic','cyclic'],
@@ -38,7 +39,8 @@ def main(directory, kernel, input_size, part, unroll, unroll_inner, pipe, cycle_
   'hotspot' : ['cyclic','cyclic','cyclic'],
   'lud1'     : ['cyclic'],
   'lud2'     : ['cyclic','cyclic','cyclic'],
-  'spmv'    : ['cyclic', 'cyclic', 'cyclic', 'cyclic', 'cyclic']
+  'spmv'    : ['cyclic', 'cyclic', 'cyclic', 'cyclic', 'cyclic'],
+  'hello'     : [],
   }
   array_size = {
   'bb_gemm' : ['1024','1024','1024'], # large
@@ -61,7 +63,9 @@ def main(directory, kernel, input_size, part, unroll, unroll_inner, pipe, cycle_
 
   'lud1'     : ['1024'],
 
-  'lud2'     : ['1024','1024','1024']
+  'lud2'     : ['1024','1024','1024'],
+
+  'hello'    : []
 
 # TODO
 # 'spmv'    : ['1024', '129', '1024', '128', '128'], # small
@@ -78,6 +82,7 @@ def main(directory, kernel, input_size, part, unroll, unroll_inner, pipe, cycle_
     array_size['hotspot']   = ['64','64','64']
     array_size['lud1']   = ['64']
     array_size['lud2']   = ['64','64','64']
+    array_size['hello']   = []
   elif input_size == 'medium':
     array_size['bb_gemm'] = ['256','256','256']
     array_size['reduction'] = ['1024']
@@ -86,6 +91,7 @@ def main(directory, kernel, input_size, part, unroll, unroll_inner, pipe, cycle_
     array_size['hotspot']   = ['256','256','256']
     array_size['lud1']   = ['256']
     array_size['lud2']   = ['256','256','256']
+    array_size['hello']   = []
     
 
   #wordsize in bytes
@@ -103,6 +109,7 @@ def main(directory, kernel, input_size, part, unroll, unroll_inner, pipe, cycle_
   'lud1'     : ['4'],
   'lud2'     : ['4','4','4'],
   'spmv'    : ['4', '4', '4', '4', '4'],
+  'hello'    : [],
   }
 
   BaseFile = directory
