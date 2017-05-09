@@ -4,7 +4,7 @@ import os
 import shutil
 
 
-def main(directory, kernel, input_size, part, unroll, unroll_inner, pipe, cycle_time):
+def main(directory, kernel, input_size, part, unroll, unroll_inner, pipe, cycle_time, generalized_trace):
 
   print '--Running config.main()'
 
@@ -25,7 +25,7 @@ def main(directory, kernel, input_size, part, unroll, unroll_inner, pipe, cycle_
   'lud1'     : ['diag'],
   'lud2'     : ['diag','peri_row','peri_col'],
   'spmv'    : ['values', 'rows', 'cols', 'vector', 'result'],
-  'hello'     : [],
+  'hello'     : ['1','sum','i'],
   }
   array_partition_type = {
   'bb_gemm' : ['cyclic','cyclic','cyclic'],
@@ -40,7 +40,7 @@ def main(directory, kernel, input_size, part, unroll, unroll_inner, pipe, cycle_
   'lud1'     : ['cyclic'],
   'lud2'     : ['cyclic','cyclic','cyclic'],
   'spmv'    : ['cyclic', 'cyclic', 'cyclic', 'cyclic', 'cyclic'],
-  'hello'     : [],
+  'hello'     : ['cyclic','cyclic','cyclic'],
   }
   array_size = {
   'bb_gemm' : ['1024','1024','1024'], # large
@@ -65,7 +65,7 @@ def main(directory, kernel, input_size, part, unroll, unroll_inner, pipe, cycle_
 
   'lud2'     : ['1024','1024','1024'],
 
-  'hello'    : []
+  'hello'    : ['4','4','4']
 
 # TODO
 # 'spmv'    : ['1024', '129', '1024', '128', '128'], # small
@@ -82,7 +82,7 @@ def main(directory, kernel, input_size, part, unroll, unroll_inner, pipe, cycle_
     array_size['hotspot']   = ['64','64','64']
     array_size['lud1']   = ['64']
     array_size['lud2']   = ['64','64','64']
-    array_size['hello']   = []
+    array_size['hello']   = ['4','4','4']
   elif input_size == 'medium':
     array_size['bb_gemm'] = ['256','256','256']
     array_size['reduction'] = ['1024']
@@ -91,7 +91,7 @@ def main(directory, kernel, input_size, part, unroll, unroll_inner, pipe, cycle_
     array_size['hotspot']   = ['256','256','256']
     array_size['lud1']   = ['256']
     array_size['lud2']   = ['256','256','256']
-    array_size['hello']   = []
+    array_size['hello']   = ['4','4','4']
     
 
   #wordsize in bytes
@@ -109,23 +109,30 @@ def main(directory, kernel, input_size, part, unroll, unroll_inner, pipe, cycle_
   'lud1'     : ['4'],
   'lud2'     : ['4','4','4'],
   'spmv'    : ['4', '4', '4', '4', '4'],
-  'hello'    : [],
+  'hello'    : ['4', '4', '4'],
   }
 
   BaseFile = directory
   os.chdir(BaseFile)
 
-  if not os.path.isdir(BaseFile + '/sim-%s/'%input_size):
-    os.mkdir(BaseFile + '/sim-%s/'%input_size)
+  config_dir = BaseFile
+  if generalized_trace:
+    config_dir = config_dir + '/sim-general/'
+  else:
+    config_dir = config_dir + '/sim-%s/' %input_size
 
-  if os.path.isdir(BaseFile + '/sim-%s/'%input_size + d):
-    shutil.rmtree(BaseFile + '/sim-%s/'%input_size + d)
+  if not os.path.isdir(config_dir):
+    os.mkdir(config_dir)
 
-  if not os.path.isdir(BaseFile + '/sim-%s/'%input_size + d):
-    os.mkdir(BaseFile + '/sim-%s/'%input_size + d)
+  if os.path.isdir(config_dir + d):
+    shutil.rmtree(config_dir + d)
+
+  if not os.path.isdir(config_dir + d):
+    print ("creating dir " + config_dir+d)
+    os.mkdir(config_dir + d)
 
   print 'Writing config file'
-  config = open(BaseFile + '/sim-%s/'%input_size + d + '/config_' + d, 'w')
+  config = open(config_dir + d + '/config_' + d, 'w')
   config.write('cycle_time,' + cycle_time + "\n")
   print "CYCLE_TIME," + cycle_time
   config.write('pipelining,' + str(pipe) + "\n")
@@ -246,4 +253,5 @@ if __name__ == '__main__':
   unroll = sys.argv[5]
   pipe = sys.argv[6]
   cycle_time = sys.argv[7]
-  main(directory, kernel, input_size, part, unroll, pipe, cycle_time)
+  generalized_trace = int(sys.argv[8])
+  main(directory, kernel, input_size, part, unroll, pipe, cycle_time, generalized_trace)

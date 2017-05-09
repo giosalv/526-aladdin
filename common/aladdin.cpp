@@ -60,10 +60,11 @@ int main(int argc, const char* argv[]) {
 
   // Build the graph.
   bool dddg_built = acc->buildDddg();
+  int graph_id = 0;
 
   // Repeat for each invocation of the accelerator.
   while (dddg_built) {
-    acc->globalOptimizationPass();
+    acc->globalOptimizationPass(graph_id++);
     /* Profiling */
     acc->prepareForScheduling();
 

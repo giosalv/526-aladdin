@@ -39,12 +39,14 @@ pipe = [0]#, 1]
 benchmarks = ['lud1','lud2','stencil']
 sizes = ['small','medium','large']
 
-generalized_trace = 1
-benchmarks = ['hello']
+generalized_trace = int(sys.argv[1])
+benchmarks = ['hello', 'triad']
 sizes = ['small']
 loop_counts={}
 loop_counts['hello'] = {}
-loop_counts['hello']['5'] = ['6']
+loop_counts['hello']['5'] = ['3']
+loop_counts['triad'] = {}
+loop_counts['triad']['15'] = ['1','2','3','4']
 
 ALADDIN_HOME = str(os.getenv('ALADDIN_HOME'))
 GEN_PASS_HOME = str(os.getenv('GEN_PASS_HOME'))
@@ -68,7 +70,10 @@ for bench in benchmarks:
           for f_part in part:
             for f_pipe in pipe:
               # CHANGE CLOCK FREQUENCY HERE. CURRENTLY 2 NS.
-              os.system('python run_aladdin.py %s %s %i %i %i %i 2 False %d' % (bench, size, f_part, f_unroll, f_unroll_inner, f_pipe, generalized_trace))
+              print "####################\n\n\nRUNNING ALADDING\n\n\n#####################"
+              run_cmd = 'python run_aladdin.py %s %s %i %i %i %i 2 False %d' % (bench, size, f_part, f_unroll, f_unroll_inner, f_pipe, generalized_trace)
+              print run_cmd
+              os.system(run_cmd)
 
     if graph_results:
       MAX_VAL = 0xFFFFFFFF

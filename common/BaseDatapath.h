@@ -428,7 +428,7 @@ class BaseDatapath {
 
   virtual bool step();
   virtual void stepExecutingQueue() = 0;
-  virtual void globalOptimizationPass() = 0;
+  virtual void globalOptimizationPass(int graph_id) = 0;
 
   std::string benchName;
   int num_cycles;

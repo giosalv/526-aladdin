@@ -15,7 +15,7 @@ class ScratchpadDatapath : public BaseDatapath {
                      std::string config_file);
   virtual ~ScratchpadDatapath();
 
-  void globalOptimizationPass();
+  void globalOptimizationPass(int graph_id);
   void completePartition();
   void scratchpadPartition();
   virtual void clearDatapath();

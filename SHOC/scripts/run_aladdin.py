@@ -6,7 +6,7 @@ import os.path
 import llvm_compile
 import config
 
-def main(kernel, size, part, unroll, unroll_inner, pipe, clock_period, compile_kernel, generalized_trace=False):
+def main(kernel, size, part, unroll, unroll_inner, pipe, clock_period, compile_kernel, generalized_trace=0):
 
   if not 'ALADDIN_HOME' in os.environ:
     raise Exception('Set ALADDIN_HOME directory as an environment variable')
@@ -23,6 +23,7 @@ def main(kernel, size, part, unroll, unroll_inner, pipe, clock_period, compile_k
 
   os.chdir(BENCH_HOME)
   d = 'p%s_u%s_ui%s_P%s_%sns' % (part, unroll, unroll_inner, pipe, clock_period)
+  print d, compile_kernel, generalized_trace
 
   #Run LLVM-Tracer to generate the dynamic trace
   #Only need to run once to generate the design space of each algorithm
@@ -31,7 +32,7 @@ def main(kernel, size, part, unroll, unroll_inner, pipe, clock_period, compile_k
     llvm_compile.main(BENCH_HOME, kernel, size)
 
   #Generate accelerator design config file
-  config.main(BENCH_HOME, kernel, size, part, unroll, unroll_inner, pipe, clock_period)
+  config.main(BENCH_HOME, kernel, size, part, unroll, unroll_inner, pipe, clock_period, generalized_trace)
 
   print 'Start Aladdin'
   trace_file = ''
@@ -41,12 +42,21 @@ def main(kernel, size, part, unroll, unroll_inner, pipe, clock_period, compile_k
     trace_file = BENCH_HOME+ '/' + 'dynamic_trace.gz'
   config_file = 'config_' + d
 
-  newdir = os.path.join(BENCH_HOME, 'sim-%s'%size, d)
+  if generalized_trace:
+    newdir = os.path.join(BENCH_HOME, 'sim-general', d)
+  else:
+    newdir = os.path.join(BENCH_HOME, 'sim-%s'%size, d)
   print 'Changing directory to %s' % newdir
 
   os.chdir(newdir)
   os.system('%s/common/aladdin %s %s %s' % \
                 (os.getenv('ALADDIN_HOME'), kernel, trace_file, config_file))
+  for file in os.listdir("."):
+    if file.endswith(".dot"):
+      base = file[0:-4]
+      graph_cmd = 'dot -Tpdf -ograph%s.pdf %s' %(base,file)
+      print graph_cmd
+      os.system(graph_cmd)
 
 if __name__ == '__main__':
   kernel = sys.argv[1]
@@ -57,5 +67,6 @@ if __name__ == '__main__':
   pipe = sys.argv[6]
   clock_period = sys.argv[7]
   compile_kernel = sys.argv[8]
-  main(kernel, size, part, unroll, unroll_inner, pipe, clock_period, compile_kernel)
+  generalized_trace = int(sys.argv[9])
+  main(kernel, size, part, unroll, unroll_inner, pipe, clock_period, compile_kernel, generalized_trace)
 
