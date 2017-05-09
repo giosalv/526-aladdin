@@ -30,7 +30,7 @@ void ScratchpadDatapath::globalOptimizationPass(int graph_id) {
   std::cout << "      Optimizing...            " << benchName << std::endl;
   std::cout << "=============================================" << std::endl;
 
-  dumpGraph(benchName + "graph_" + std::to_string(graph_id) + "-0~unopt");
+  dumpGraph(benchName + "_" + std::to_string(graph_id) + "-0~unopt");
 
   // Node removals must come first.
   //removePhiNodes();
@@ -39,7 +39,7 @@ void ScratchpadDatapath::globalOptimizationPass(int graph_id) {
   /* memoryAmbiguation() should execute after removeInductionDependence()
    * because it needs induction_nodes. */
   removeInductionDependence();
-  dumpGraph(benchName + "graph_" + std::to_string(graph_id) +  "-2~noind");
+  dumpGraph(benchName + "_" + std::to_string(graph_id) +  "-2~noind");
 
   //std::cout << "-- Printing inductive phis --" << std::endl;
   //const std::vector<Vertex> inductive_phis = findInductivePhis();
@@ -49,39 +49,39 @@ void ScratchpadDatapath::globalOptimizationPass(int graph_id) {
   //  std::cout << "-- " << vertex_to_string(*it) << std::endl;
 
   memoryAmbiguation();
-  dumpGraph(benchName + "graph_" + std::to_string(graph_id) +  "-3~memamb");
+  dumpGraph(benchName + "_" + std::to_string(graph_id) +  "-3~memamb");
 
   // Base address must be initialized next.
   initBaseAddress();
 
   completePartition();
   scratchpadPartition();
-  dumpGraph(benchName + "graph_" + std::to_string(graph_id) +  "-4~part");
+  dumpGraph(benchName + "_" + std::to_string(graph_id) +  "-4~part");
 
   loopFlatten();
-  dumpGraph(benchName + "graph_" + std::to_string(graph_id) +  "-5~flat");
+  dumpGraph(benchName + "_" + std::to_string(graph_id) +  "-5~flat");
 
   loopUnrolling();
-  dumpGraph(benchName + "graph_" + std::to_string(graph_id) +  "-6~unroll");
+  dumpGraph(benchName + "_" + std::to_string(graph_id) +  "-6~unroll");
 
   removeSharedLoads();
-  dumpGraph(benchName + "graph_" + std::to_string(graph_id) +  "-7~noshld");
+  dumpGraph(benchName + "_" + std::to_string(graph_id) +  "-7~noshld");
 
   storeBuffer();
-  dumpGraph(benchName + "graph_" + std::to_string(graph_id) +  "-8~stbuf");
+  dumpGraph(benchName + "_" + std::to_string(graph_id) +  "-8~stbuf");
 
   removeRepeatedStores();
-  dumpGraph(benchName + "graph_" + std::to_string(graph_id) +  "-9~norepst");
+  dumpGraph(benchName + "_" + std::to_string(graph_id) +  "-9~norepst");
 
   treeHeightReduction();
-  dumpGraph(benchName + "graph_" + std::to_string(graph_id) +  "-10~tree");
+  dumpGraph(benchName + "_" + std::to_string(graph_id) +  "-10~tree");
 
   // Must do loop pipelining last; after all the data/control dependences are
   // fixed
   loopPipelining();
-  dumpGraph(benchName + "graph_" + std::to_string(graph_id) +  "-11~pipe");
+  dumpGraph(benchName + "_" + std::to_string(graph_id) +  "-11~pipe");
 
-  dumpGraph(benchName + "graph_" + std::to_string(graph_id) +  "-11~opt");
+  dumpGraph(benchName + "_" + std::to_string(graph_id) +  "-11~opt");
 }
 
 /* First, compute all base addresses, then check each node to make sure that

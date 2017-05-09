@@ -54,7 +54,7 @@ def main(kernel, size, part, unroll, unroll_inner, pipe, clock_period, compile_k
   for file in os.listdir("."):
     if file.endswith(".dot"):
       base = file[0:-4]
-      graph_cmd = 'dot -Tpdf -ograph%s.pdf %s' %(base,file)
+      graph_cmd = 'dot -Tpdf -o %s.pdf %s' % (base, file)
       print graph_cmd
       os.system(graph_cmd)
 

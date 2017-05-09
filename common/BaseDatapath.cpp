@@ -1910,7 +1910,7 @@ void BaseDatapath::dumpGraph(std::string graph_name) {
         exec_nodes.at(get(boost::vertex_node_id, graph_, v))->is_inductive();
   }
   std::ofstream out(
-      graph_name + "_graph.dot", std::ofstream::out);
+      graph_name + ".dot", std::ofstream::out);
       //graph_name + "_graph.dot", std::ofstream::out | std::ofstream::app);
   write_graphviz(out, graph_, make_microop_label_writer(vertexToMicroop,
                                                         vertexToID,
