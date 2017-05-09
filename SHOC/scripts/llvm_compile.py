@@ -18,7 +18,7 @@ kernels = {
 'hello'    : 'hello',
 }
 
-def main (directory, source, size, generalized_trace=0, loop_counts=None):
+def main (directory, source, size, generalized_trace=0, loop_counts=None, unaliased_lines=None):
 
   if not 'TRACER_HOME' in os.environ:
     raise Exception('Set TRACER_HOME directory as an environment variable')
@@ -59,7 +59,7 @@ def main (directory, source, size, generalized_trace=0, loop_counts=None):
       for loop_line in loop_counts.keys():
         loop_iter_str = ''
         for loop_iters in loop_counts[loop_line]:
-          loop_iter_str = loop_iter_str + loop_iters + ","
+          loop_iter_str = loop_iter_str + loop_iters + ','
     
         opt_cmd='opt -S -load=' + os.getenv('GEN_PASS_HOME') + '/lib/LLVMProj526.so ' + \
                 ' -proj526 --loop_line=' + str(loop_line) + ' --iteration_counts=' + loop_iter_str + \
@@ -67,9 +67,14 @@ def main (directory, source, size, generalized_trace=0, loop_counts=None):
                 #' ' + obj
         print opt_cmd
         os.system(opt_cmd)
+    unaliased_str = ''
+    if not unaliased_lines is None:
+      unaliased_str = '--unaliased_lines='
+      for line in unaliased_lines:
+        unaliased_str = unaliased_str + line + ','
     opt_cmd = 'opt -load=' + os.getenv('GEN_PASS_HOME') + '/lib/LLVMProj526Func.so ' + \
               ' -load=' + os.getenv('GEN_PASS_HOME') + '/lib/LLVMProj526.so ' + \
-              '-nameinsts -proj526func -o ' + opt_obj + ' ' + intermed_obj 
+              '-nameinsts -proj526func ' + unaliased_str + ' -o ' + opt_obj + ' ' + intermed_obj 
               #'-nameinsts -proj526func -o ' + opt_obj + ' ' + obj 
     print opt_cmd
     os.system(opt_cmd)

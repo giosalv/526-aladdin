@@ -40,13 +40,16 @@ benchmarks = ['lud1','lud2','stencil']
 sizes = ['small','medium','large']
 
 generalized_trace = int(sys.argv[1])
-benchmarks = ['hello', 'triad']
+benchmarks = ['hello']#, 'triad']
 sizes = ['small']
 loop_counts={}
 loop_counts['hello'] = {}
-loop_counts['hello']['5'] = ['3']
+loop_counts['hello']['7'] = ['3']
 loop_counts['triad'] = {}
 loop_counts['triad']['15'] = ['1','2','3','4']
+unaliased_lines={}
+unaliased_lines['hello']=['8']
+unaliased_lines['triad']=['16']
 
 ALADDIN_HOME = str(os.getenv('ALADDIN_HOME'))
 GEN_PASS_HOME = str(os.getenv('GEN_PASS_HOME'))
@@ -58,7 +61,7 @@ for bench in benchmarks:
     # MH: Compile the benchmark once before the loop, instead of compiling it
     # for every single configuration.
     BENCH_HOME = ALADDIN_HOME + '/SHOC/' + bench
-    llvm_compile.main(BENCH_HOME, bench, size, generalized_trace, loop_counts[bench])
+    llvm_compile.main(BENCH_HOME, bench, size, generalized_trace, loop_counts[bench], unaliased_lines[bench])
     os.chdir(ALADDIN_HOME + '/SHOC/scripts')
 
     if gen_results:
