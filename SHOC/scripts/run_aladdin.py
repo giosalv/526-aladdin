@@ -36,10 +36,13 @@ def main(kernel, size, part, unroll, unroll_inner, pipe, clock_period, compile_k
 
   print 'Start Aladdin'
   trace_file = ''
+  aladdin_exec = ''
   if generalized_trace:
     trace_file = BENCH_HOME+ '/' + 'generalized_trace.gz'
+    aladdin_exec = 'aladdin-generalized'
   else:
     trace_file = BENCH_HOME+ '/' + 'dynamic_trace.gz'
+    aladdin_exec = 'aladdin'
   config_file = 'config_' + d
 
   if generalized_trace:
@@ -49,8 +52,11 @@ def main(kernel, size, part, unroll, unroll_inner, pipe, clock_period, compile_k
   print 'Changing directory to %s' % newdir
 
   os.chdir(newdir)
-  os.system('%s/common/aladdin %s %s %s' % \
-                (os.getenv('ALADDIN_HOME'), kernel, trace_file, config_file))
+  exec_cmd = ('%s/common/%s %s %s %s' % \
+                (os.getenv('ALADDIN_HOME'), aladdin_exec, kernel, trace_file, config_file))
+  print(exec_cmd)
+  os.system(exec_cmd)
+
   for file in os.listdir("."):
     if file.endswith(".dot"):
       base = file[0:-4]

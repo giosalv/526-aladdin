@@ -74,7 +74,17 @@ def main(directory, kernel, input_size, part, unroll, unroll_inner, pipe, cycle_
   }
 
   # optional: reduce array size for small/medium inputs
-  if input_size == 'small':
+  # generalized trace: hack to avoid out of bounds errors
+  if generalized_trace:
+    array_size['bb_gemm'] = ['6400000','6400000','6400000']
+    array_size['reduction'] = ['25600000']
+    array_size['stencil'] = ['10000000','10000000','900000']
+    array_size['triad']   = ['25600000','25600000','25600000']
+    array_size['hotspot']   = ['6400000','6400000','6400000']
+    array_size['lud1']   = ['6400000']
+    array_size['lud2']   = ['6400000','6400000','6400000']
+    array_size['hello']   = ['400000','400000','400000','1200000']
+  elif input_size == 'small':
     array_size['bb_gemm'] = ['64','64','64']
     array_size['reduction'] = ['256']
     array_size['stencil'] = ['100','100','9']

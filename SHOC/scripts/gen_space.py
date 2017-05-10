@@ -73,7 +73,6 @@ for bench in benchmarks:
           for f_part in part:
             for f_pipe in pipe:
               # CHANGE CLOCK FREQUENCY HERE. CURRENTLY 2 NS.
-              print "####################\n\n\nRUNNING ALADDING\n\n\n#####################"
               run_cmd = 'python run_aladdin.py %s %s %i %i %i %i 2 False %d' % (bench, size, f_part, f_unroll, f_unroll_inner, f_pipe, generalized_trace)
               print run_cmd
               os.system(run_cmd)

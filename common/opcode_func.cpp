@@ -10,9 +10,11 @@ std::string string_of_op(const int microop) {
   case LLVM_IR_Invoke :             return "Invoke";
   case LLVM_IR_Resume :             return "Resume";
   case LLVM_IR_Unreachable :        return "Unreachable";
+#ifdef GENERALIZED_TRACE
   case LLVM_IR_CleanupReturnInst :  return "CleanupReturnInst";
   case LLVM_IR_CatchReturnInst :    return "CatchReturnInst";
   case LLVM_IR_CatchSwitchInst :    return "CatchSwitchInst";
+#endif
   case LLVM_IR_Add :                return "Add";
   case LLVM_IR_FAdd :               return "FAdd";
   case LLVM_IR_Sub :                return "Sub";
@@ -51,15 +53,19 @@ std::string string_of_op(const int microop) {
   case LLVM_IR_IntToPtr :           return "IntToPtr";
   case LLVM_IR_BitCast :            return "BitCast";
   case LLVM_IR_AddrSpaceCast :      return "AddrSpaceCast";
+#ifdef GENERALIZED_TRACE
   case LLVM_IR_CleanupPad :         return "CleanupPad";
   case LLVM_IR_CatchPadInst :       return "CatchPadInst";
+#endif
   case LLVM_IR_ICmp :               return "ICmp";
   case LLVM_IR_FCmp :               return "FCmp";
   case LLVM_IR_PHI :                return "PHI";
   case LLVM_IR_Call :               return "Call";
   case LLVM_IR_Select :             return "Select";
+#ifdef GENERALIZED_TRACE
   case LLVM_IR_UserOpt1 :           return "UserOpt1";
   case LLVM_IR_UserOpt2 :           return "UserOpt2";
+#endif
   case LLVM_IR_VAArg :              return "VAArg";
   case LLVM_IR_ExtractElement :     return "ExtractElement";
   case LLVM_IR_InsertElement :      return "InsertElement";

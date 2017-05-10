@@ -1,6 +1,13 @@
 
 .PHONY: all clean
+ifdef ORIG_ALADDIN
+EXE_SRC = aladdin
 EXE = aladdin
+else
+EXE_SRC = aladdin
+EXE = aladdin-generalized
+CFLAGS += -DGENERALIZED_TRACE
+endif
 
 MACHINE_MODEL_OBJS = BaseDatapath.o ScratchpadDatapath.o Scratchpad.o \
                      Registers.o Partition.o LogicalArray.o ReadyPartition.o \
@@ -42,7 +49,7 @@ lib : obj_dir $(OBJ_FILES) $(CACTI_OBJ_FILES)
 
 $(EXE): obj_dir $(CACTI_OBJ_FILES) $(OBJ_FILES)
 	$(CXX) $(CFLAGS) -c aladdin.cpp
-	$(CXX)  $(BITWIDTH) -o $(EXE) $(EXE).o $(OBJ_FILES) $(CACTI_OBJ_FILES) $(LFLAGS)
+	$(CXX)  $(BITWIDTH) -o $(EXE) $(EXE_SRC).o $(OBJ_FILES) $(CACTI_OBJ_FILES) $(LFLAGS)
 
 $(OBJ_DIR)/%.o : %.h %.cpp
 	$(CXX) $(CFLAGS) -o $@ -c $*.cpp
@@ -54,3 +61,5 @@ clean:
 	rm -f $(OBJ_DIR)/*.o
 	rm -f $(CACTI_OBJ_DIR)/*.o
 	rm -f aladdin
+	rm -f aladdin-generalized
+
