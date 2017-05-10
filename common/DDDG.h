@@ -50,6 +50,7 @@ class DDDG {
   void parse_parameter(std::string line, int param_tag);
   void parse_result(std::string line);
   void parse_forward(std::string line);
+  void parse_control(std::string line);
   void parse_call_parameter(std::string line, int param_tag);
   void parse_labelmap_line(std::string line);
   std::string parse_function_name(std::string line);

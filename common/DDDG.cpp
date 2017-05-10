@@ -489,6 +489,18 @@ void DDDG::parse_forward(std::string line) {
     register_last_written[unique_reg_ref] = tmp_written_inst;
 }
 
+void DDDG::parse_control(std::string line) {
+  int cd_inst_id = -1;
+  sscanf(line.c_str(), "%d,\n", &cd_inst_id);
+
+  //Instruction &cd_inst = srcManager.get<Instruction>(cd_inst_id);
+  //assert(cd_inst != InvalidInstruction &&
+  //       "Referenced unknown instruction in control dependence edge");
+
+  assert(cd_inst_id >= 0);
+  insert_control_dependence((unsigned)cd_inst_id, (unsigned)current_node_id);
+}
+
 std::string DDDG::parse_function_name(std::string line) {
   char curr_static_function[256];
   char instid[256], bblockid[256];
@@ -596,6 +608,8 @@ size_t DDDG::build_initial_dddg(size_t trace_off, size_t trace_size) {
       parse_result(line_left);
     } else if (tag.compare("f") == 0) {
       parse_forward(line_left);
+    } else if (tag.compare("w") == 0) {
+      parse_control(line_left);
     } else {
       parse_parameter(line_left, atoi(tag.c_str()));
     }
