@@ -48,36 +48,40 @@ def main (directory, source, size, generalized_trace=0, loop_counts=None, unalia
         #' -fno-inline -fno-builtin -emit-llvm -o ' + obj + ' '  + source_file
   print clang_cmd
   os.system(clang_cmd)
-  opt_cmd = 'opt -S -simplifycfg -indvars -loop-simplify -loop-rotate -dce -licm -mem2reg  ' + \
+  opt_cmd = 'opt -S -simplifycfg -indvars -loop-simplify -loop-rotate -constprop -dce -licm -mem2reg ' + \
             ' -o ' + intermed_obj + ' ' + obj
             #' ' + obj
   print opt_cmd
   os.system(opt_cmd)
 
   if generalized_trace:
-    if not loop_counts is None:
-      for loop_line in loop_counts.keys():
-        loop_iter_str = ''
-        for loop_iters in loop_counts[loop_line]:
-          loop_iter_str = loop_iter_str + loop_iters + ','
-    
-        opt_cmd='opt -S -load=' + os.getenv('GEN_PASS_HOME') + '/lib/LLVMProj526.so ' + \
-                ' -proj526 --loop_line=' + str(loop_line) + ' --iteration_counts=' + loop_iter_str + \
-                ' -o ' + intermed_obj + ' ' + intermed_obj
-                #' ' + obj
-        print opt_cmd
-        os.system(opt_cmd)
-    unaliased_str = ''
-    if not unaliased_lines is None:
-      unaliased_str = '--unaliased_lines='
-      for line in unaliased_lines:
-        unaliased_str = unaliased_str + line + ','
-    opt_cmd = 'opt -load=' + os.getenv('GEN_PASS_HOME') + '/lib/LLVMProj526Func.so ' + \
-              ' -load=' + os.getenv('GEN_PASS_HOME') + '/lib/LLVMProj526.so ' + \
-              '-nameinsts -proj526func ' + unaliased_str + ' -o ' + opt_obj + ' ' + intermed_obj 
-              #'-nameinsts -proj526func -o ' + opt_obj + ' ' + obj 
-    print opt_cmd
-    os.system(opt_cmd)
+    for kernel in kernels[source].split(','):
+      print "got kernel ", kernel, " in src ", source
+      if not loop_counts is None:
+        for loop_line in loop_counts.keys():
+          loop_iter_str = ''
+          for loop_iters in loop_counts[loop_line]:
+            loop_iter_str = loop_iter_str + loop_iters + ','
+      
+          opt_cmd='opt -S -load=' + os.getenv('GEN_PASS_HOME') + '/lib/LLVMProj526.so ' + \
+                  ' -proj526 --loop_line=' + str(loop_line) + ' --iteration_counts=' + loop_iter_str + \
+                  ' -o ' + intermed_obj + ' ' + intermed_obj
+                  #' ' + obj
+          print opt_cmd
+          os.system(opt_cmd)
+      unaliased_str = ''
+      target_func_str = '--target_func=' + kernel
+      if not unaliased_lines is None:
+        unaliased_str = '--unaliased_lines='
+        for line in unaliased_lines:
+          unaliased_str = unaliased_str + line + ','
+      opt_cmd = 'opt -load=' + os.getenv('GEN_PASS_HOME') + '/lib/LLVMProj526Func.so ' + \
+                ' -load=' + os.getenv('GEN_PASS_HOME') + '/lib/LLVMProj526.so ' + \
+                '-nameinsts -proj526func ' + unaliased_str + ' ' + target_func_str + \
+                ' -o ' + opt_obj + ' ' + intermed_obj 
+                #'-nameinsts -proj526func -o ' + opt_obj + ' ' + obj 
+      print opt_cmd
+      os.system(opt_cmd)
   else:
     opt_cmd = 'opt -S -load=' + os.getenv('TRACER_HOME') + '/full-trace/full_trace.so -fulltrace -labelmapwriter ' + intermed_obj + ' -o ' + intermed_obj
     print opt_cmd

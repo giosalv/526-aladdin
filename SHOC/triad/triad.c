@@ -32,7 +32,7 @@ int main(){
 		a[i] = rand();
 		b[i] = rand();
 	}
-	int numits = (rand() % 4)+1;
+	int numits = 4;
 #ifdef GEM5
   resetGem5Stats();
 #endif
