@@ -40,7 +40,7 @@ benchmarks = ['lud1','lud2','stencil']
 sizes = ['small','medium','large']
 
 generalized_trace = int(sys.argv[1])
-benchmarks = ['triad']#'hello', 'triad']
+benchmarks = ['hello', 'triad']
 sizes = ['small']
 loop_counts={}
 loop_counts['hello'] = {}
