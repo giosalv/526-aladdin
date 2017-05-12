@@ -34,77 +34,84 @@ void init_all(FORMALS)
 }
 
 
-void if_else(FORMALS)
+int if_else(FORMALS)
 {
     int result = -1;
 
-    if (rand() % 2) {
-        const int a_idx = get_rand_idx();
-        const int b_idx = get_rand_idx();
-        const int c_idx = get_rand_idx();
-        result = a[a_idx] + b[b_idx] + c[c_idx] + s;
+    if (s % 2) {//rand() % 2) {
+        //const int a_idx = get_rand_idx();
+        //const int b_idx = get_rand_idx();
+        //const int c_idx = get_rand_idx();
+        result = a[1] + b[1] + c[1] + s;
     } else {
         result = a[0] + b[0] + c[0] + s;
     }
 
-    printf("result: %d\n", result);
+    return result;
 }
 
 
-void loop(FORMALS)
+int loop(FORMALS)
 {
-    for (int i = 0; i < size; ++i)
-        c[i] = s * a[i] + b[i];
-
-    for (int i = 0; i < size; ++i)
-        printf("c[%d]: %d\n", i, c[i]);
-}
-
-
-void loop_if_else(FORMALS)
-{
+    int result;
     for (int i = 0; i < size; ++i) {
-        if (rand() % 2) {
-            const int a_idx = get_rand_idx();
-            const int b_idx = get_rand_idx();
-            c[i] = s * a[a_idx] + b[b_idx];
+        result = s * a[i] + b[i];
+        c[i] = result;
+    }
+    return result;
+    //for (int i = 0; i < size; ++i)
+    //    printf("c[%d]: %d\n", i, c[i]);
+}
+
+
+int loop_if_else(FORMALS)
+{
+    int result;
+    for (int i = 0; i < size; ++i) {
+        if (s % 2) {//rand() % 2) {
+            //const int a_idx = get_rand_idx();
+            //const int b_idx = get_rand_idx();
+            result = s * a[0] + b[0];
+            c[i] = result;
         } else {
-            c[i] = s * a[i] + b[i];
+            result = s * a[i] + b[i];
+            c[i] = result;
         }
     }
-
-    for (int i = 0; i < size; ++i)
-        printf("c[%d]: %d\n", i, c[i]);
+    return result;
+    //for (int i = 0; i < size; ++i)
+    //    printf("c[%d]: %d\n", i, c[i]);
 }
 
 
-void nested_loop(FORMALS)
+int nested_loop(FORMALS)
 {
+    int result=0;
     for (int i = 0; i < size; ++i) {
         const int a_val = a[i];
-        int result = 0;
 
         for (int j = 0; j < size; ++j)
             result += a_val + s * b[j];
 
         c[i] = result;
     }
+    return result;
 
-    for (int i = 0; i < size; ++i)
-        printf("c[%d]: %d\n", i, c[i]);
+    //for (int i = 0; i < size; ++i)
+    //    printf("c[%d]: %d\n", i, c[i]);
 }
 
 
-void nested_loop_if_else(FORMALS)
+int nested_loop_if_else(FORMALS)
 {
+    int result = 0;
     for (int i = 0; i < size; ++i) {
         const int a_val = a[i];
-        int result = 0;
 
         for (int j = 0; j < size; ++j) {
             if (rand() % 2) {
-                const int b_idx = get_rand_idx();
-                result += a_val + s * b[b_idx];
+                //const int b_idx = get_rand_idx();
+                result += a_val + s * b[0];
             } else {
                 result += a_val + s * b[j];
             }
@@ -112,7 +119,8 @@ void nested_loop_if_else(FORMALS)
 
         c[i] = result;
     }
+    return result;
 
-    for (int i = 0; i < size; ++i)
-        printf("c[%d]: %d\n", i, c[i]);
+    //for (int i = 0; i < size; ++i)
+    //    printf("c[%d]: %d\n", i, c[i]);
 }

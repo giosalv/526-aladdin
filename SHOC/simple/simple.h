@@ -31,8 +31,8 @@ const int _s = 35;
 
 void init_all(FORMALS);
 
-void if_else(FORMALS);
-void loop(FORMALS);
-void loop_if_else(FORMALS);
-void nested_loop(FORMALS);
-void nested_loop_if_else(FORMALS);
+int if_else(FORMALS);
+int loop(FORMALS);
+int loop_if_else(FORMALS);
+int nested_loop(FORMALS);
+int nested_loop_if_else(FORMALS);

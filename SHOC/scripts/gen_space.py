@@ -11,6 +11,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 import llvm_compile
+import run_aladdin
 
 gen_results = 1
 graph_results = 0
@@ -40,16 +41,42 @@ benchmarks = ['lud1','lud2','stencil']
 sizes = ['small','medium','large']
 
 generalized_trace = int(sys.argv[1])
-benchmarks = ['hello', 'triad']
+benchmarks = ['simple']#'hello', 'simple']#, 'triad']
+
+kernel_map = {
+'bb_gemm' : ['bb_gemm'],
+'fft' : ['fft1D_512','step1','step2','step3','step4','step5','step6','step7','step8','step9','step10','step11'],
+'md' : ['md','md_kernel'],
+'pp_scan' : ['pp_scan','local_scan','sum_scan','last_step_scan'],
+'reduction' : ['reduction'],
+'ss_sort' : ['ss_sort','init','hist','local_scan','sum_scan','last_step_scan','update'],
+'stencil' : ['stencil'],
+'triad'   : ['triad'],
+'hotspot' : ['hotspot'],
+'lud1'     : ['lud1'],
+'lud2'     : ['lud2'],
+'spmv'    : ['spmv'],
+'hello'    : ['hello'],
+'simple'    : ['if_else','loop','loop_if_else','nested_loop','nested_loop_if_else'],
+}
+
 sizes = ['small']
 loop_counts={}
 loop_counts['hello'] = {}
 loop_counts['hello']['7'] = ['3']
 loop_counts['triad'] = {}
 loop_counts['triad']['15'] = ['1','2','3','4']
+loop_counts['simple'] = {}
+loop_counts['simple']['57'] = ['1-4']
+loop_counts['simple']['70'] = ['1-4']
+loop_counts['simple']['90'] = ['1-4']
+loop_counts['simple']['93'] = ['1-4']
+loop_counts['simple']['108'] = ['1-4']
+loop_counts['simple']['111'] = ['1-4']
 unaliased_lines={}
 unaliased_lines['hello']=['8']
 unaliased_lines['triad']=['16']
+unaliased_lines['simple']=[]
 
 ALADDIN_HOME = str(os.getenv('ALADDIN_HOME'))
 GEN_PASS_HOME = str(os.getenv('GEN_PASS_HOME'))
@@ -61,7 +88,7 @@ for bench in benchmarks:
     # MH: Compile the benchmark once before the loop, instead of compiling it
     # for every single configuration.
     BENCH_HOME = ALADDIN_HOME + '/SHOC/' + bench
-    llvm_compile.main(BENCH_HOME, bench, size, generalized_trace, loop_counts[bench], unaliased_lines[bench])
+    llvm_compile.main(BENCH_HOME, bench, kernel_map[bench], size, generalized_trace, loop_counts[bench], unaliased_lines[bench])
     os.chdir(ALADDIN_HOME + '/SHOC/scripts')
 
     if gen_results:
@@ -73,9 +100,11 @@ for bench in benchmarks:
           for f_part in part:
             for f_pipe in pipe:
               # CHANGE CLOCK FREQUENCY HERE. CURRENTLY 2 NS.
-              run_cmd = 'python run_aladdin.py %s %s %i %i %i %i 2 False %d' % (bench, size, f_part, f_unroll, f_unroll_inner, f_pipe, generalized_trace)
-              print run_cmd
-              os.system(run_cmd)
+              print 'run_aladdin ', bench, kernel_map[bench], size, f_part, f_unroll, f_unroll_inner, f_pipe, 2, False, generalized_trace
+              run_aladdin.main(bench, kernel_map[bench], str(size), str(f_part), str(f_unroll), str(f_unroll_inner), str(f_pipe), str(2), str(False), str(generalized_trace))
+              #run_cmd = 'python run_aladdin.py %s %s %i %i %i %i 2 False %d' % (bench, size, f_part, f_unroll, f_unroll_inner, f_pipe, generalized_trace)
+              #print run_cmd
+              #os.system(run_cmd)
 
     if graph_results:
       MAX_VAL = 0xFFFFFFFF

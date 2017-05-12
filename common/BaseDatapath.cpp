@@ -1194,7 +1194,11 @@ std::string BaseDatapath::node_to_string(ExecNode * const node) const {
   const int node_id = node->get_node_id();
   const int microop = node->get_microop();
   std::string microop_str = string_of_op(microop);
-  return std::to_string(node_id) + "~" + microop_str;
+  std::string mem_target_str = "";
+  if (node->is_memory_op()) {
+    mem_target_str = ": " + node->get_array_label();
+  }
+  return std::to_string(node_id) + "~" + microop_str + mem_target_str;
 }
 
 std::vector<Vertex> BaseDatapath::findInductivePhis() {
