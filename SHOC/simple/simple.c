@@ -42,9 +42,9 @@ int if_else(FORMALS)
         //const int a_idx = get_rand_idx();
         //const int b_idx = get_rand_idx();
         //const int c_idx = get_rand_idx();
-        result = a[idx] + b[idx] + c[idx] + s;
+        result = a[idx] + b[idx] + c[idx];
     } else {
-        result = a[idx] + b[idx+1] + c[idx+1] + s;
+        result = a[idx] + b[idx+1] + c[idx+1];
     }
 
     return result;
@@ -71,10 +71,10 @@ int loop_if_else(FORMALS)
         if (s % 2) {//rand() % 2) {
             //const int a_idx = get_rand_idx();
             //const int b_idx = get_rand_idx();
-            result = s * a[idx] + b[idx];
+            result = a[idx] + b[idx];
             c[idx] = result;
         } else {
-            result = s * a[i] + b[i];
+            result = a[i] + b[i];
             c[i] = result;
         }
     }
@@ -91,7 +91,7 @@ int nested_loop(FORMALS)
         const int a_val = a[i];
 
         for (int j = 0; j < size; ++j)
-            result += a_val + s * b[j];
+            result += a_val + b[j];
 
         c[i] = result;
     }
@@ -106,14 +106,14 @@ int nested_loop_if_else(FORMALS)
 {
     int result = 0;
     for (int i = 0; i < size; ++i) {
-        const int a_val = a[i];
+        //const int a_val = a[i];
 
         for (int j = 0; j < size; ++j) {
             if (rand() % 2) {
                 //const int b_idx = get_rand_idx();
-                result += a_val + s * b[idx];
+                result += a[i] + b[idx];
             } else {
-                result += a_val + s * b[j];
+                result += a[i] +  b[j];
             }
         }
 
