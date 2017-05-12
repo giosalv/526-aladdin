@@ -352,10 +352,10 @@ void BaseDatapath::removeInductionDependence() {
         ExecNode* parent_node = getNodeFromVertex(parent_vertex);
         if (edge_to_parid[*in_edge_it] == CONTROL_EDGE) {
           Vertex vertex = node->get_vertex();
-          std::cout << "CONTROL_EDGE: "
-                    << vertex_to_string(parent_vertex) << " -> "
-                    << vertex_to_string(vertex)
-                    << std::endl;
+          //std::cout << "CONTROL_EDGE: "
+          //          << vertex_to_string(parent_vertex) << " -> "
+          //          << vertex_to_string(vertex)
+          //          << std::endl;
           continue;
         }
         // TODO move inits back here

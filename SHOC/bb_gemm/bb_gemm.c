@@ -12,11 +12,12 @@ void bb_gemm(int x[N], int y[N], int z[N]){
 #endif
   int i, k, j, temp_x;
 	loopi:for ( i = 0; i < ROWSIZE; ++i){
-		loopk:for (k = 0; k < BLOCKSIZE; ++k){
-	      		temp_x = x[i * ROWSIZE + k];
 			loopj:for (j = 0; j < BLOCKSIZE; ++j){
-	      			z[i * ROWSIZE + j] += temp_x * y[k*ROWSIZE + j];
+          temp_x = 0;
+		      loopk:for (k = 0; k < BLOCKSIZE; ++k){
+              temp_x += x[i * ROWSIZE + k] * y[k*ROWSIZE + j];
       			}
+	      	  z[i * ROWSIZE + j] = temp_x;
 
       		}
 	}

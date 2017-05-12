@@ -20,7 +20,7 @@ graph_results = 0
 unroll = [1]#, 4, 16, 64]
 unroll_inner = [1]#, 4, 16, 64]
 #part  = [1, 2, 4, 8, 16, 32]#, 64]
-part = [1]#, 4, 16, 64]
+part = [4]#, 4, 16, 64]
 pipe = [0]#, 1]
 
 #You can parallel this by running multiply jobs together
@@ -41,7 +41,6 @@ benchmarks = ['lud1','lud2','stencil']
 sizes = ['small','medium','large']
 
 generalized_trace = int(sys.argv[1])
-benchmarks = ['simple']#,'triad','bb_gem','fft','hotspot','ss_sort']#]#'hello', 'simple']#, 'triad']
 
 kernel_map = {
 'bb_gemm' : ['bb_gemm'],
@@ -60,12 +59,23 @@ kernel_map = {
 'simple'    : ['if_else']#,'loop','loop_if_else','nested_loop','nested_loop_if_else'],
 }
 
-sizes = ['small']
+#benchmarks = ['simple']
+sizes = ['small','small-alias']
+benchmarks = ['bb_gemm','triad','stencil','reduction']#,'fft','ss_sort']
+#sizes = ['small','toy','small-noalias']
+
 loop_counts={}
-loop_counts['hello'] = {}
-loop_counts['hello']['7'] = ['3']
 loop_counts['triad'] = {}
-loop_counts['triad']['15'] = ['1','2','3','4']
+loop_counts['triad']['15'] = ['2048']
+loop_counts['bb_gemm'] = {}
+loop_counts['bb_gemm']['14'] = ['32']
+loop_counts['bb_gemm']['15'] = ['8']
+loop_counts['bb_gemm']['17'] = ['8']
+loop_counts['stencil'] = {}
+loop_counts['stencil']['14'] = ['30']
+loop_counts['stencil']['15'] = ['30']
+loop_counts['reduction'] = {}
+loop_counts['reduction']['13'] = ['2048']
 loop_counts['simple'] = {}
 loop_counts['simple']['57'] = ['1-4']
 loop_counts['simple']['70'] = ['1-4']
@@ -73,10 +83,15 @@ loop_counts['simple']['90'] = ['1-4']
 loop_counts['simple']['93'] = ['1-4']
 loop_counts['simple']['108'] = ['1-4']
 loop_counts['simple']['111'] = ['1-4']
+loop_counts['hello'] = {}
+loop_counts['hello']['7'] = ['3']
 unaliased_lines={}
-unaliased_lines['hello']=['8']
 unaliased_lines['triad']=['16']
+unaliased_lines['bb_gemm']=['18']
+unaliased_lines['stencil']=['72']
+unaliased_lines['reduction']=['']
 unaliased_lines['simple']=[]
+unaliased_lines['hello']=['8']
 
 ALADDIN_HOME = str(os.getenv('ALADDIN_HOME'))
 GEN_PASS_HOME = str(os.getenv('GEN_PASS_HOME'))

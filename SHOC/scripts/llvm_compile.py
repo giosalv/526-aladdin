@@ -14,8 +14,13 @@ def main (directory, source, functions, size, generalized_trace=0, loop_counts=N
   executable = out_fn + '-instrumented'
   # set defines to determine input size
   size_define = 'SIZE_SMALL'
-  if size == 'small':
+  if size == 'toy':
+    size_define = 'SIZE_TOY'
+  elif size == 'small':
     size_define = 'SIZE_SMALL'
+  elif size == 'small-alias':
+    size_define = 'SIZE_SMALL'
+    unaliased_lines=[]
   elif size == 'medium':
     size_define = 'SIZE_MEDIUM'
   elif size == 'large':
@@ -24,7 +29,8 @@ def main (directory, source, functions, size, generalized_trace=0, loop_counts=N
   source_file = source + '.c'
   print directory
 
-  clang_cmd = 'clang -g -O0 -S -I' + os.environ['ALADDIN_HOME'] + \
+  os.system("rm -f *.ll");
+  clang_cmd = 'clang -g -O1 -S -I' + os.environ['ALADDIN_HOME'] + \
         ' -D' + size_define + \
         ' -fno-slp-vectorize -fno-vectorize -fno-unroll-loops ' + \
         ' -fno-inline -fno-builtin -emit-llvm '  + source_file

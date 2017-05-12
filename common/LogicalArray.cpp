@@ -79,7 +79,8 @@ void LogicalArray::computePartitionSizes(std::vector<size_t>& size_per_part) {
 }
 
 size_t LogicalArray::getPartitionIndex(Addr addr) {
-  int rel_addr = addr - base_addr;
+  //int rel_addr = (addr - base_addr);
+  int rel_addr = (addr - base_addr) % total_size;
   if (rel_addr >= total_size) {
     std::cerr << getBaseName() << ", addr:" << addr << ", base_addr:" << base_addr << ", rel_addr:" << rel_addr << ", total_size:" << total_size << "\n";
   }
@@ -108,7 +109,8 @@ size_t LogicalArray::getPartitionIndex(Addr addr) {
 size_t LogicalArray::getBlockIndex(unsigned part_index, Addr addr) {
   if (partition_type == cyclic) {
     /* cyclic partition. */
-    Addr rel_addr = addr - base_addr;
+    //Addr rel_addr = addr - base_addr;
+    int rel_addr = (addr - base_addr) % total_size;
     return rel_addr / word_size / num_partitions;
   } else {
     /* block partition. */
@@ -116,7 +118,8 @@ size_t LogicalArray::getBlockIndex(unsigned part_index, Addr addr) {
     for (size_t i = 0; i < part_index; i++) {
       part_base += size_per_part[i];
     }
-    Addr rel_addr = addr - part_base;
+    //Addr rel_addr = addr - part_base;
+    Addr rel_addr = (addr - part_base) % total_size;
     return rel_addr / word_size;
   }
 }

@@ -79,36 +79,36 @@ def main(directory, kernel, input_size, part, unroll, unroll_inner, pipe, cycle_
 
   # optional: reduce array size for small/medium inputs
   # generalized trace: hack to avoid out of bounds errors
-  if generalized_trace:
-    array_size['bb_gemm'] = ['6400000','6400000','6400000']
-    array_size['reduction'] = ['25600000']
-    array_size['stencil'] = ['10000000','10000000','900000']
-    array_size['triad']   = ['25600000','25600000','25600000']
-    array_size['hotspot']   = ['6400000','6400000','6400000']
-    array_size['lud1']   = ['6400000']
-    array_size['lud2']   = ['6400000','6400000','6400000']
-    array_size['hello']   = ['400000','400000','400000','1200000']
-    array_size['simple']   = ['400000','400000','400000']
-  elif input_size == 'small':
-    array_size['bb_gemm'] = ['64','64','64']
-    array_size['reduction'] = ['256']
-    array_size['stencil'] = ['100','100','9']
-    array_size['triad']   = ['256','256','256']
-    array_size['hotspot']   = ['64','64','64']
-    array_size['lud1']   = ['64']
-    array_size['lud2']   = ['64','64','64']
-    array_size['hello']   = ['4','4','4','12']
-    array_size['simple']   = ['4','4','4']
-  elif input_size == 'medium':
-    array_size['bb_gemm'] = ['256','256','256']
-    array_size['reduction'] = ['1024']
-    array_size['stencil'] = ['1156','1156','9']
-    array_size['triad']   = ['1024','1024','1024']
-    array_size['hotspot']   = ['256','256','256']
-    array_size['lud1']   = ['256']
-    array_size['lud2']   = ['256','256','256']
-    array_size['hello']   = ['4','4','4','12']
-    array_size['simple']   = ['4','4','4']
+  #if generalized_trace:
+  #  array_size['bb_gemm'] = ['2048','2048','2048']
+  #  array_size['reduction'] = ['25600000']
+  #  array_size['stencil'] = ['10000000','10000000','900000']
+  #  array_size['triad']   = ['4096','4096','4096']
+  #  array_size['hotspot']   = ['6400000','6400000','6400000']
+  #  array_size['lud1']   = ['6400000']
+  #  array_size['lud2']   = ['6400000','6400000','6400000']
+  #  array_size['hello']   = ['400000','400000','400000','1200000']
+  #  array_size['simple']   = ['400000','400000','400000']
+  #elif input_size == 'small':
+  #  array_size['bb_gemm'] = ['64','64','64']
+  #  array_size['reduction'] = ['256']
+  #  array_size['stencil'] = ['100','100','9']
+  #  array_size['triad']   = ['256','256','256']
+  #  array_size['hotspot']   = ['64','64','64']
+  #  array_size['lud1']   = ['64']
+  #  array_size['lud2']   = ['64','64','64']
+  #  array_size['hello']   = ['4','4','4','12']
+  #  array_size['simple']   = ['4','4','4']
+  #elif input_size == 'medium':
+  #  array_size['bb_gemm'] = ['256','256','256']
+  #  array_size['reduction'] = ['1024']
+  #  array_size['stencil'] = ['1156','1156','9']
+  #  array_size['triad']   = ['1024','1024','1024']
+  #  array_size['hotspot']   = ['256','256','256']
+  #  array_size['lud1']   = ['256']
+  #  array_size['lud2']   = ['256','256','256']
+  #  array_size['hello']   = ['4','4','4','12']
+  #  array_size['simple']   = ['4','4','4']
     
 
   #wordsize in bytes
@@ -135,7 +135,7 @@ def main(directory, kernel, input_size, part, unroll, unroll_inner, pipe, cycle_
 
   config_dir = BaseFile
   if generalized_trace:
-    config_dir = config_dir + '/sim-general/'
+    config_dir = config_dir + '/sim-general-%s/'%input_size
   else:
     config_dir = config_dir + '/sim-%s/' %input_size
 
@@ -143,7 +143,8 @@ def main(directory, kernel, input_size, part, unroll, unroll_inner, pipe, cycle_
     os.mkdir(config_dir)
 
   if os.path.isdir(config_dir + d):
-    shutil.rmtree(config_dir + d)
+    os.system("rm -rf %s"%(config_dir+d))
+    #shutil.rmtree(config_dir + d)
 
   if not os.path.isdir(config_dir + d):
     print ("creating dir " + config_dir+d)
@@ -172,9 +173,12 @@ def main(directory, kernel, input_size, part, unroll, unroll_inner, pipe, cycle_
       sys.exit(0)
   #loop unrolling and flattening
   if kernel == 'bb_gemm':
-    config.write('unrolling,bb_gemm,5,%s\n' %(unroll))
-    config.write('flatten,bb_gemm,6\n' )
-    config.write('flatten,bb_gemm,8\n' )
+    #config.write('unrolling,bb_gemm,5,%s\n' %(unroll))
+    #config.write('flatten,bb_gemm,6\n' )
+    #config.write('flatten,bb_gemm,8\n' )
+    config.write('flatten,bb_gemm,14\n')
+    config.write('flatten,bb_gemm,15\n')
+    config.write('flatten,bb_gemm,17\n')
 
   elif kernel == 'fft':
     config.write('unrolling,step1,16,%s\n' %(unroll))

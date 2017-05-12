@@ -6,6 +6,8 @@ import os.path
 import llvm_compile
 import config
 
+create_graphs = 0
+
 def main(kernel, functions, size, part, unroll, unroll_inner, pipe, clock_period, compile_kernel, generalized_trace=0):
 
   if not 'ALADDIN_HOME' in os.environ:
@@ -47,7 +49,7 @@ def main(kernel, functions, size, part, unroll, unroll_inner, pipe, clock_period
     config_file = 'config_' + d
 
     if generalized_trace:
-      newdir = os.path.join(BENCH_HOME, 'sim-general', d)
+      newdir = os.path.join(BENCH_HOME, 'sim-general-%s'%size, d)
     else:
       newdir = os.path.join(BENCH_HOME, 'sim-%s'%size, d)
     print 'Changing directory to %s' % newdir
@@ -58,12 +60,13 @@ def main(kernel, functions, size, part, unroll, unroll_inner, pipe, clock_period
     print(exec_cmd)
     os.system(exec_cmd)
 
-    for file in os.listdir("."):
-      if file.endswith(".dot"):
-        base = file[0:-4]
-        graph_cmd = 'dot -Tpdf -o %s.pdf %s' % (base, file)
-        print graph_cmd
-        os.system(graph_cmd)
+    if create_graphs:
+      for file in os.listdir("."):
+        if file.endswith(".dot"):
+          base = file[0:-4]
+          graph_cmd = 'dot -Tpdf -o %s.pdf %s' % (base, file)
+          print graph_cmd
+          os.system(graph_cmd)
 
 if __name__ == '__main__':
   kernel = sys.argv[1]
