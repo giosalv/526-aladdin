@@ -1916,9 +1916,11 @@ void BaseDatapath::dumpGraph(std::string graph_name) {
   std::ofstream out(
       graph_name + ".dot", std::ofstream::out);
       //graph_name + "_graph.dot", std::ofstream::out | std::ofstream::app);
+  EdgeNameMap edge_to_parid = get(boost::edge_name, graph_);
   write_graphviz(out, graph_, make_microop_label_writer(vertexToMicroop,
                                                         vertexToID,
-                                                        vertexIsInductive));
+                                                        vertexIsInductive),
+                              make_edge_color_writer(edge_to_parid));
 }
 
 /*As Late As Possible (ALAP) rescheduling for non-memory, non-control nodes.

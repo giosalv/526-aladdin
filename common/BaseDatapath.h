@@ -38,6 +38,7 @@
 #define MEMORY_EDGE -1
 #define CONTROL_EDGE 11
 #define PIPE_EDGE 12
+#define GENERALIZED_CONTROL_EDGE 13
 
 struct memActivity {
   unsigned read;
@@ -178,6 +179,36 @@ inline microop_label_writer<Map> make_microop_label_writer(Map map1,
                                                            Map map2,
                                                            Map map3) {
   return microop_label_writer<Map>(map1, map2, map3);
+}
+
+template <class Map> class edge_color_writer {
+ public:
+  edge_color_writer(Map _edgeToType)
+      : edgeToType(_edgeToType) {}
+  void operator()(std::ostream& out, const Edge& e) {
+    const uint8_t edge_type = edgeToType[e];
+    std::string color = "black";
+    switch(edge_type) {
+    case MEMORY_EDGE: color = "blue";
+      break;
+    case CONTROL_EDGE: color = "red";
+      break;
+    case GENERALIZED_CONTROL_EDGE: color = "yellow";
+      break;
+    default: break;
+    }
+    out << "["
+        << "color=" << color
+        << "]";
+  }
+
+ private:
+  Map edgeToType;
+};
+
+template <class Map>
+inline edge_color_writer<Map> make_edge_color_writer(Map map) {
+  return edge_color_writer<Map>(map);
 }
 
 class BaseDatapath {

@@ -41,7 +41,7 @@ benchmarks = ['lud1','lud2','stencil']
 sizes = ['small','medium','large']
 
 generalized_trace = int(sys.argv[1])
-benchmarks = ['simple']#'hello', 'simple']#, 'triad']
+benchmarks = ['simple']#,'triad','bb_gem','fft','hotspot','ss_sort']#]#'hello', 'simple']#, 'triad']
 
 kernel_map = {
 'bb_gemm' : ['bb_gemm'],
@@ -57,7 +57,7 @@ kernel_map = {
 'lud2'     : ['lud2'],
 'spmv'    : ['spmv'],
 'hello'    : ['hello'],
-'simple'    : ['if_else','loop','loop_if_else','nested_loop','nested_loop_if_else'],
+'simple'    : ['if_else']#,'loop','loop_if_else','nested_loop','nested_loop_if_else'],
 }
 
 sizes = ['small']
@@ -80,6 +80,11 @@ unaliased_lines['simple']=[]
 
 ALADDIN_HOME = str(os.getenv('ALADDIN_HOME'))
 GEN_PASS_HOME = str(os.getenv('GEN_PASS_HOME'))
+
+#for bench in benchmarks:
+#  for size in sizes:
+#    for func in kernel_map[bench]:
+      
 
 for bench in benchmarks:
   for size in sizes:
