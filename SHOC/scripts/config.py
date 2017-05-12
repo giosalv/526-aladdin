@@ -27,6 +27,7 @@ def main(directory, kernel, input_size, part, unroll, unroll_inner, pipe, cycle_
   'spmv'    : ['values', 'rows', 'cols', 'vector', 'result'],
   'hello'     : ['1','sum','i','array'],
   'simple'     : ['a','b','c'],
+  'pagerank'  : ['data', 'x', 'y'],
   }
   array_partition_type = {
   'bb_gemm' : ['cyclic','cyclic','cyclic'],
@@ -43,6 +44,7 @@ def main(directory, kernel, input_size, part, unroll, unroll_inner, pipe, cycle_
   'spmv'    : ['cyclic', 'cyclic', 'cyclic', 'cyclic', 'cyclic'],
   'hello'     : ['cyclic','cyclic','cyclic','cyclic'],
   'simple'     : ['cyclic','cyclic','cyclic'],
+  'pagerank'  : ['cyclic','cyclic','cyclic'],
   }
   array_size = {
   'bb_gemm' : ['1024','1024','1024'], # large
@@ -69,7 +71,9 @@ def main(directory, kernel, input_size, part, unroll, unroll_inner, pipe, cycle_
 
   'hello'    : ['4','4','4','12'],
 
-  'simple'    : ['4','4','4']
+  'simple'    : ['4','4','4'],
+
+  'pagerank'    : ['20480','1024','1024'],
 
 # TODO
 # 'spmv'    : ['1024', '129', '1024', '128', '128'], # small
@@ -128,6 +132,7 @@ def main(directory, kernel, input_size, part, unroll, unroll_inner, pipe, cycle_
   'spmv'    : ['4', '4', '4', '4', '4'],
   'hello'    : ['4', '4', '4','4'],
   'simple'    : ['4', '4', '4'],
+  'pagerank'    : ['4', '4', '4'],
   }
 
   BaseFile = directory
@@ -264,6 +269,11 @@ def main(directory, kernel, input_size, part, unroll, unroll_inner, pipe, cycle_
   elif kernel == 'spmv':
     config.write('unrolling,spmv,14,%s\n' %(unroll))
     config.write('flatten,spmv,20\n')
+
+  elif kernel == 'pagerank':
+    config.write('unrolling,pagerank1,14,%s\n' %(unroll))
+    config.write('unrolling,pagerank1,20,%s\n' %(unroll_inner))
+    config.write('unrolling,pagerank2,34,%s\n' %(unroll))
 
   config.close()
 

@@ -56,12 +56,13 @@ kernel_map = {
 'lud2'     : ['lud2'],
 'spmv'    : ['spmv'],
 'hello'    : ['hello'],
-'simple'    : ['if_else']#,'loop','loop_if_else','nested_loop','nested_loop_if_else'],
+'simple'    : ['if_else'],#'loop','loop_if_else','nested_loop','nested_loop_if_else'],
+'pagerank'  : ['pagerank1'],#, 'pagerank2'],
 }
 
 #benchmarks = ['simple']
 sizes = ['small','small-alias']
-benchmarks = ['bb_gemm','triad','stencil','reduction']#,'fft','ss_sort']
+benchmarks = ['bb_gemm','triad','stencil','reduction','pagerank']#,'fft','ss_sort']
 #sizes = ['small','toy','small-noalias']
 
 loop_counts={}
@@ -85,6 +86,9 @@ loop_counts['simple']['108'] = ['1-4']
 loop_counts['simple']['111'] = ['1-4']
 loop_counts['hello'] = {}
 loop_counts['hello']['7'] = ['3']
+loop_counts['pagerank']['14'] = ['2']
+loop_counts['pagerank']['20'] = ['1-2']
+#loop_counts['pagerank']['34'] = ['2']
 unaliased_lines={}
 unaliased_lines['triad']=['16']
 unaliased_lines['bb_gemm']=['18']
@@ -92,6 +96,7 @@ unaliased_lines['stencil']=['72']
 unaliased_lines['reduction']=['']
 unaliased_lines['simple']=[]
 unaliased_lines['hello']=['8']
+unaliased_lines['pagerank']=['25']
 
 ALADDIN_HOME = str(os.getenv('ALADDIN_HOME'))
 GEN_PASS_HOME = str(os.getenv('GEN_PASS_HOME'))
