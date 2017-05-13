@@ -65,6 +65,7 @@ class DDDG {
                                     size_t size,
                                     unsigned sink_node);
   void insert_control_dependence(unsigned source_node, unsigned dest_node);
+  void insert_gen_control_dependence(unsigned source_node, unsigned dest_node);
   const Variable& get_array_real_var(const std::string& array_name);
 
   DynamicFunction curr_dynamic_function;
@@ -107,6 +108,7 @@ class DDDG {
   map_uint_to_set memory_edge_table;
   // Control edge tracking table.
   map_uint_to_set control_edge_table;
+  map_uint_to_set gen_control_edge_table;
   // Line number mapping to function and label name. If there are multiple
   // source files, there could be multiple function/labels with the same line
   // number.

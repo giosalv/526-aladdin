@@ -187,18 +187,18 @@ template <class Map> class edge_color_writer {
       : edgeToType(_edgeToType) {}
   void operator()(std::ostream& out, const Edge& e) {
     const uint8_t edge_type = edgeToType[e];
-    std::string color = "black";
+    std::string style = "";
     switch(edge_type) {
-    case MEMORY_EDGE: color = "blue";
+    case MEMORY_EDGE: style = "";
       break;
-    case CONTROL_EDGE: color = "red";
+    case CONTROL_EDGE: style = "";
       break;
-    case GENERALIZED_CONTROL_EDGE: color = "yellow";
+    case GENERALIZED_CONTROL_EDGE: style = "style=dotted";
       break;
     default: break;
     }
     out << "["
-        << "color=" << color
+        << style
         << "]";
   }
 

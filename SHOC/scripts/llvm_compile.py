@@ -30,7 +30,7 @@ def main (directory, source, functions, size, generalized_trace=0, loop_counts=N
   print directory
 
   os.system("rm -f *.ll");
-  clang_cmd = 'clang -g -O1 -S -I' + os.environ['ALADDIN_HOME'] + \
+  clang_cmd = 'clang -g -O0 -S -I' + os.environ['ALADDIN_HOME'] + \
         ' -D' + size_define + \
         ' -fno-slp-vectorize -fno-vectorize -fno-unroll-loops ' + \
         ' -fno-inline -fno-builtin -emit-llvm '  + source_file

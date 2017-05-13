@@ -111,6 +111,14 @@ void DDDG::output_dddg() {
     for (unsigned sink_node : sink_list)
       datapath->addDddgEdge(source, sink_node, CONTROL_EDGE);
   }
+  for (auto source_it = gen_control_edge_table.begin();
+       source_it != gen_control_edge_table.end();
+       ++source_it) {
+    unsigned source = source_it->first;
+    std::set<unsigned>& sink_list = source_it->second;
+    for (unsigned sink_node : sink_list)
+      datapath->addDddgEdge(source, sink_node, GENERALIZED_CONTROL_EDGE);
+  }
 }
 
 void DDDG::handle_post_write_dependency(Addr start_addr,
@@ -142,6 +150,15 @@ void DDDG::insert_control_dependence(unsigned source_node, unsigned dest_node) {
   if (control_edge_table.find(source_node) == control_edge_table.end())
     control_edge_table[source_node] = std::set<unsigned>();
   std::set<unsigned>& dest_nodes = control_edge_table[source_node];
+  auto result = dest_nodes.insert(dest_node);
+  if (result.second)
+    num_of_ctrl_dep++;
+}
+
+void DDDG::insert_gen_control_dependence(unsigned source_node, unsigned dest_node) {
+  if (gen_control_edge_table.find(source_node) == gen_control_edge_table.end())
+    gen_control_edge_table[source_node] = std::set<unsigned>();
+  std::set<unsigned>& dest_nodes = gen_control_edge_table[source_node];
   auto result = dest_nodes.insert(dest_node);
   if (result.second)
     num_of_ctrl_dep++;
@@ -498,7 +515,7 @@ void DDDG::parse_control(std::string line) {
   //       "Referenced unknown instruction in control dependence edge");
 
   assert(cd_inst_id >= 0);
-  insert_control_dependence((unsigned)cd_inst_id, (unsigned)current_node_id);
+  insert_gen_control_dependence((unsigned)cd_inst_id, (unsigned)current_node_id);
 }
 
 std::string DDDG::parse_function_name(std::string line) {

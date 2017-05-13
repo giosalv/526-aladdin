@@ -56,14 +56,16 @@ kernel_map = {
 'lud2'     : ['lud2'],
 'spmv'    : ['spmv'],
 'hello'    : ['hello'],
-'simple'    : ['if_else'],#'loop','loop_if_else','nested_loop','nested_loop_if_else'],
+'simple'    : ['if_else','loop','loop_if_else','nested_loop','nested_loop_if_else'],
 'pagerank'  : ['pagerank1'],#, 'pagerank2'],
 }
 
-#benchmarks = ['simple']
-sizes = ['small','small-alias']
-benchmarks = ['bb_gemm','triad','stencil','reduction','pagerank']#,'fft','ss_sort']
-#sizes = ['small','toy','small-noalias']
+}
+
+benchmarks = ['simple']
+sizes = ['small']
+#benchmarks = ['bb_gemm','triad','stencil','reduction']#,'fft','ss_sort']
+#sizes = ['small','small-alias']
 
 loop_counts={}
 loop_counts['triad'] = {}
@@ -78,12 +80,12 @@ loop_counts['stencil']['15'] = ['30']
 loop_counts['reduction'] = {}
 loop_counts['reduction']['13'] = ['2048']
 loop_counts['simple'] = {}
-loop_counts['simple']['57'] = ['1-4']
-loop_counts['simple']['70'] = ['1-4']
-loop_counts['simple']['90'] = ['1-4']
-loop_counts['simple']['93'] = ['1-4']
-loop_counts['simple']['108'] = ['1-4']
-loop_counts['simple']['111'] = ['1-4']
+loop_counts['simple']['57'] = ['1-2']
+loop_counts['simple']['70'] = ['1-2']
+loop_counts['simple']['90'] = ['1-2']
+loop_counts['simple']['93'] = ['1-2']
+loop_counts['simple']['108'] = ['1-2']
+loop_counts['simple']['111'] = ['1-2']
 loop_counts['hello'] = {}
 loop_counts['hello']['7'] = ['3']
 loop_counts['pagerank']['14'] = ['2']

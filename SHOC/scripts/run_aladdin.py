@@ -6,7 +6,7 @@ import os.path
 import llvm_compile
 import config
 
-create_graphs = 0
+create_graphs = 1
 
 def main(kernel, functions, size, part, unroll, unroll_inner, pipe, clock_period, compile_kernel, generalized_trace=0):
 
